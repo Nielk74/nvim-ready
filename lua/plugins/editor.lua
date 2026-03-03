@@ -174,7 +174,7 @@ return {
         "RRethy/vim-illuminate",
         event = { "BufReadPre", "BufNewFile" },
         config = function()
-            require("illuminate").setup({
+            require("illuminate").configure({
                 delay             = 100,
                 large_file_cutoff = 2000,
                 filetypes_denylist = { "neo-tree", "TelescopePrompt", "Trouble", "lazy", "help" },

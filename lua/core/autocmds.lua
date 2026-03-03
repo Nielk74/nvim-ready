@@ -69,3 +69,16 @@ vim.api.nvim_create_autocmd("BufReadPost", {
         end
     end,
 })
+
+-- Open neo-tree when Neovim starts with a directory argument
+vim.api.nvim_create_autocmd("VimEnter", {
+    group = augroup("neo_tree_open_dir"),
+    callback = function()
+        local arg = vim.fn.argv(0)
+        if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
+            vim.schedule(function()
+                vim.cmd("Neotree show " .. vim.fn.fnameescape(arg))
+            end)
+        end
+    end,
+})
