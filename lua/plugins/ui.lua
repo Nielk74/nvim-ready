@@ -1,22 +1,14 @@
+local T = require("core.theme")
+
 return {
-    -- Colorscheme
+    -- Colorscheme — configured in lua/core/theme.lua
     {
-        "folke/tokyonight.nvim",
+        T.plugin,
         lazy     = false,
         priority = 1000,
         config = function()
-            require("tokyonight").setup({
-                style           = "night",
-                transparent     = false,
-                terminal_colors = true,
-                styles = {
-                    comments  = { italic = true },
-                    keywords  = { italic = true },
-                    functions = {},
-                    variables = {},
-                },
-            })
-            vim.cmd.colorscheme("tokyonight")
+            require(T.module).setup(T.opts)
+            vim.cmd.colorscheme(T.name)
         end,
     },
 
@@ -37,7 +29,7 @@ return {
 
             require("lualine").setup({
                 options = {
-                    theme            = "tokyonight",
+                    theme            = T.lualine,
                     globalstatus     = true,
                     component_separators = { left = "|", right = "|" },
                     section_separators  = { left = "",  right = ""  },
