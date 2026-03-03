@@ -19,36 +19,7 @@ return {
         "nvim-lualine/lualine.nvim",
         event = "VeryLazy",
         config = function()
-            local function lsp_name()
-                local clients = vim.lsp.get_clients({ bufnr = 0 })
-                if #clients == 0 then return "no LSP" end
-                local names = {}
-                for _, c in ipairs(clients) do
-                    table.insert(names, c.name)
-                end
-                return table.concat(names, ", ")
-            end
-
-            require("lualine").setup({
-                options = {
-                    theme            = T.lualine,
-                    globalstatus     = true,
-                    component_separators = { left = "|", right = "|" },
-                    section_separators  = { left = "",  right = ""  },
-                },
-                sections = {
-                    lualine_a = { "mode" },
-                    lualine_b = { "branch", "diff", "diagnostics" },
-                    lualine_c = { { "filename", path = 1 } },
-                    lualine_x = { lsp_name, "encoding", "fileformat", "filetype" },
-                    lualine_y = { "progress" },
-                    lualine_z = { "location" },
-                },
-                inactive_sections = {
-                    lualine_c = { { "filename", path = 1 } },
-                    lualine_x = { "location" },
-                },
-            })
+            require("core.lualine_config").setup(T.lualine)
         end,
     },
 

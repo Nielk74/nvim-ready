@@ -14,6 +14,7 @@ vim.opt.rtp:prepend(lazypath)
 require("core.options")
 require("core.keymaps")
 require("core.autocmds")
+require("core.themepicker")
 
 local vendor_plugins = vim.fs.joinpath(vim.fn.stdpath("config"), "vendor", "plugins")
 
