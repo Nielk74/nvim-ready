@@ -2,6 +2,10 @@
 # Do NOT commit it — it contains gigabytes of binary and source data.
 vendor/
 
+# vendor.zip is the packaged release asset produced by fetch.ps1.
+# It is uploaded to GitHub releases via release.ps1, not committed.
+vendor.zip
+
 # lazy-lock.json pins plugin commit hashes.
 # Keep it so offline machines use the exact same plugin versions that were
 # fetched. Un-comment the line below only if you want to ignore it.

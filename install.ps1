@@ -21,15 +21,45 @@ Write-Host "Target : $nvimConfig"
 Write-Host ""
 
 # ---------------------------------------------------------------------------
-# Guard: vendor/ must exist
+# Guard: vendor/ must exist -- try to download from latest GitHub release
 # ---------------------------------------------------------------------------
 if (-not (Test-Path (Join-Path $vendorDir "lazy.nvim"))) {
-    Write-Error @"
-vendor\lazy.nvim not found.
-Run fetch.ps1 on a machine with internet access first, then copy the entire
-repository (including vendor\) to this machine.
+    $vendorZip = Join-Path $root "vendor.zip"
+
+    $ghCmd = Get-Command gh -ErrorAction SilentlyContinue
+    $ghExe = if ($ghCmd) { $ghCmd.Source } else {
+        $c = "C:\Program Files\GitHub CLI\gh.exe"; if (Test-Path $c) { $c } else { $null }
+    }
+    if ($ghExe) {
+        Write-Host "vendor/ not found. Downloading vendor.zip from latest GitHub release..."
+        & $ghExe release download --pattern "vendor.zip" --dir $root --clobber
+    } elseif (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+        Write-Host "vendor/ not found. Fetching latest release info..."
+        $api  = "https://api.github.com/repos/Nielk74/nvim-ready/releases/latest"
+        $info = Invoke-RestMethod -Uri $api -Headers @{ "User-Agent" = "install.ps1" }
+        $url  = ($info.assets | Where-Object { $_.name -eq "vendor.zip" } |
+                 Select-Object -First 1).browser_download_url
+        if ($url) {
+            Write-Host "Downloading $url ..."
+            curl.exe -L -o $vendorZip $url
+        }
+    }
+
+    if (Test-Path $vendorZip) {
+        Write-Host "Extracting vendor.zip..."
+        Expand-Archive -Path $vendorZip -DestinationPath $root -Force
+        Remove-Item $vendorZip -Force
+        Write-Host "vendor/ extracted."
+    }
+
+    if (-not (Test-Path (Join-Path $vendorDir "lazy.nvim"))) {
+        Write-Error @"
+vendor\lazy.nvim not found and could not be downloaded.
+Either run fetch.ps1 on a machine with internet access and copy vendor/ here,
+or run release.ps1 to publish a GitHub release and re-run install.ps1.
 "@
-    exit 1
+        exit 1
+    }
 }
 
 # ---------------------------------------------------------------------------
