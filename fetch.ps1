@@ -119,6 +119,7 @@ $plugins = @(
     @{ url = "https://github.com/RRethy/vim-illuminate.git";                     name = "vim-illuminate"                       },
     @{ url = "https://github.com/folke/persistence.nvim.git";                    name = "persistence.nvim"                     },
     # UI
+    @{ url = "https://github.com/nvim-tree/nvim-web-devicons.git";                 name = "nvim-web-devicons"                    },
     @{ url = "https://github.com/folke/noice.nvim.git";                          name = "noice.nvim"                           },
     # UI - colorschemes (all vendored so theme can be changed offline)
     @{ url = "https://github.com/folke/tokyonight.nvim.git";                     name = "tokyonight.nvim"                  },

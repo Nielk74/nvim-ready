@@ -26,10 +26,12 @@ return {
     -- File explorer
     {
         "nvim-neo-tree/neo-tree.nvim",
+        lazy = false,
         branch = "v3.x",
         dependencies = {
             "nvim-lua/plenary.nvim",
             "MunifTanjim/nui.nvim",
+            "nvim-tree/nvim-web-devicons",
         },
         keys = {
             { "<leader>e",  "<cmd>Neotree toggle<cr>",       desc = "Toggle file explorer" },
@@ -40,28 +42,6 @@ return {
             require("neo-tree").setup({
                 close_if_last_window = true,
                 window = { width = 30 },
-                default_component_configs = {
-                    -- Text-only indicators, no icon fonts required
-                    icon = {
-                        folder_closed = ">",
-                        folder_open   = "v",
-                        folder_empty  = "-",
-                        default       = "*",
-                    },
-                    git_status = {
-                        symbols = {
-                            added     = "+",
-                            modified  = "~",
-                            deleted   = "-",
-                            renamed   = "->",
-                            untracked = "?",
-                            ignored   = "!",
-                            unstaged  = "u",
-                            staged    = "s",
-                            conflict  = "x",
-                        },
-                    },
-                },
                 filesystem = {
                     filtered_items = {
                         visible      = true,
@@ -73,6 +53,12 @@ return {
                 },
             })
         end,
+    },
+
+    -- File icons (requires Nerd Font)
+    {
+        "nvim-tree/nvim-web-devicons",
+        lazy = false,
     },
 
     -- Git signs in the gutter
