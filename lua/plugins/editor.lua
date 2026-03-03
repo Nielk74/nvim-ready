@@ -153,4 +153,48 @@ return {
             })
         end,
     },
+
+    -- Highlight TODO / FIXME / HACK / NOTE / WARN comments
+    {
+        "folke/todo-comments.nvim",
+        dependencies = { "nvim-lua/plenary.nvim" },
+        event = { "BufReadPre", "BufNewFile" },
+        keys = {
+            { "]t",         function() require("todo-comments").jump_next() end, desc = "Next TODO" },
+            { "[t",         function() require("todo-comments").jump_prev() end, desc = "Prev TODO" },
+            { "<leader>fT", "<cmd>TodoTelescope<cr>",                            desc = "Find TODOs" },
+        },
+        config = function()
+            require("todo-comments").setup()
+        end,
+    },
+
+    -- Highlight all occurrences of the word under the cursor
+    {
+        "RRethy/vim-illuminate",
+        event = { "BufReadPre", "BufNewFile" },
+        config = function()
+            require("illuminate").setup({
+                delay             = 100,
+                large_file_cutoff = 2000,
+                filetypes_denylist = { "neo-tree", "TelescopePrompt", "Trouble", "lazy", "help" },
+            })
+        end,
+    },
+
+    -- Session persistence: auto-save on exit, restore per working directory
+    {
+        "folke/persistence.nvim",
+        event = "BufReadPre",
+        keys = {
+            { "<leader>pr", function() require("persistence").load() end,   desc = "Session: restore" },
+            { "<leader>ps", function() require("persistence").select() end, desc = "Session: select"  },
+            { "<leader>pd", function() require("persistence").stop() end,   desc = "Session: don't save" },
+        },
+        config = function()
+            require("persistence").setup({
+                dir = vim.fn.stdpath("state") .. "/sessions/",
+            })
+        end,
+    },
 }
