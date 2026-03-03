@@ -219,10 +219,20 @@ $tsLsBin = Join-Path $tsLsDir "node_modules\.bin\typescript-language-server.cmd"
 if (-not (Test-Path $tsLsBin)) {
     Write-Host "    Installing typescript-language-server via npm..."
     New-Item -ItemType Directory -Force -Path $tsLsDir | Out-Null
-    npm install --prefix $tsLsDir typescript-language-server typescript
+    npm install --prefix $tsLsDir typescript-language-server typescript prettier
     Write-Ok "ts_ls installed at $tsLsDir"
 } else {
     Write-Skip "ts_ls already present"
+}
+
+# Install prettier separately if it was missed (e.g. ts_ls was already present)
+$prettierBin = Join-Path $tsLsDir "node_modules\.bin\prettier.cmd"
+if (-not (Test-Path $prettierBin)) {
+    Write-Host "    Installing prettier into ts_ls node_modules..."
+    npm install --prefix $tsLsDir prettier
+    Write-Ok "prettier installed at $tsLsDir"
+} else {
+    Write-Skip "prettier already present"
 }
 
 # ---------------------------------------------------------------------------
