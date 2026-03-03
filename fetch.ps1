@@ -369,12 +369,32 @@ if (-not (Test-Path $stulaExe)) {
 }
 
 # ---------------------------------------------------------------------------
+# 7. Package vendor.zip (GitHub release asset)
+# ---------------------------------------------------------------------------
+Write-Step "Package vendor.zip"
+
+$vendorZip = Join-Path $root "vendor.zip"
+if (Test-Path $vendorZip) { Remove-Item $vendorZip -Force }
+Write-Host "    Compressing vendor/ -> vendor.zip (may take a moment)..."
+Compress-Archive -Path (Join-Path $root "vendor") -DestinationPath $vendorZip
+$sizeMB = [math]::Round((Get-Item $vendorZip).Length / 1MB, 0)
+Write-Ok "vendor.zip ($sizeMB MB) created"
+Write-Host "    Run release.ps1 to publish it as a GitHub release asset."
+
+# ---------------------------------------------------------------------------
 # Done
 # ---------------------------------------------------------------------------
 Write-Host ""
 Write-Host "vendor/ is ready." -ForegroundColor Green
-Write-Host "Transfer this entire repository (including vendor/) to the offline machine,"
-Write-Host "then run install.ps1 there."
+Write-Host ""
+Write-Host "Option A - transfer by file (USB / network share):"
+Write-Host "  Copy this entire repository (including vendor/) to the offline machine"
+Write-Host "  then run install.ps1 there."
+Write-Host ""
+Write-Host "Option B - transfer via GitHub release:"
+Write-Host "  `$env:GITHUB_TOKEN = 'ghp_...'"
+Write-Host "  .\release.ps1 -Tag v1.0"
+Write-Host "  On the offline machine: git clone + .\install.ps1 (auto-downloads vendor.zip)"
 Write-Host ""
 Write-Host "Offline machine still needs (system-wide):"
 Write-Host "  - Neovim 0.10+, Git, Node.js, Python 3, .NET SDK"
