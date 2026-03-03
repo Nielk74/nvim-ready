@@ -59,6 +59,9 @@ return {
         event = { "BufReadPre", "BufNewFile" },
         dependencies = { "hrsh7th/cmp-nvim-lsp" },
         config = function()
+            -- Suppress lspconfig deprecation warning (will be removed in v3.0.0)
+            vim.deprecate = function() end
+            
             local lspconfig    = require("lspconfig")
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
