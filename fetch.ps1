@@ -103,6 +103,8 @@ $plugins = @(
     @{ url = "https://github.com/saadparwaiz1/cmp_luasnip.git";                  name = "cmp_luasnip"                      },
     # formatting
     @{ url = "https://github.com/stevearc/conform.nvim.git";                     name = "conform.nvim"                     },
+    # navigation
+    @{ url = "https://github.com/ThePrimeagen/harpoon.git";                      name = "harpoon";          branch = "harpoon2" },
     # UI - colorschemes (all vendored so theme can be changed offline)
     @{ url = "https://github.com/folke/tokyonight.nvim.git";                     name = "tokyonight.nvim"                  },
     @{ url = "https://github.com/catppuccin/nvim.git";                            name = "catppuccin"                       },
