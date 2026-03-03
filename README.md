@@ -122,7 +122,7 @@ nvim
 | Category | Plugins |
 |----------|---------|
 | Plugin manager | lazy.nvim |
-| Colorscheme | tokyonight.nvim (night) |
+| Colorscheme | tokyonight.nvim (night) — see `lua/core/theme.lua` |
 | Statusline | lualine.nvim |
 | File explorer | neo-tree.nvim |
 | Fuzzy finder | telescope.nvim + plenary.nvim |
@@ -326,6 +326,44 @@ referenced directly by conform.nvim — no global npm install needed.
 | prettier | TS/JS/JSON/HTML/CSS | ready (bundled in ts_ls node_modules) |
 | black | Python | run `pip install black --no-index --find-links vendor\wheels\` |
 | csharpier | C# | run `dotnet tool install -g csharpier` |
+
+---
+
+## Customization
+
+### Changing the theme
+
+All theme settings live in one file: **`lua/core/theme.lua`**.
+Open it, change what you need, save, and restart Neovim.
+
+#### Switch tokyonight style
+
+```lua
+-- lua/core/theme.lua
+opts = {
+    style = "moon",   -- "night" | "storm" | "moon" | "day"
+    ...
+},
+```
+
+That is the only line you need to touch for a tokyonight variant.
+
+#### Switch to a different colorscheme plugin
+
+1. Add the plugin to `fetch.ps1` (or manually clone it into `vendor/plugins/<repo-name>`).
+2. Edit the four fields in `lua/core/theme.lua`:
+
+```lua
+plugin = "catppuccin/nvim",     -- lazy spec: "owner/repo"
+name   = "catppuccin-mocha",    -- :colorscheme name
+module = "catppuccin",          -- require(<module>).setup(opts)
+opts   = { flavour = "mocha" }, -- plugin-specific setup options
+lualine = "catppuccin",         -- lualine theme (or "auto")
+```
+
+> `lualine` must stay in sync with the active colorscheme. Most popular
+> themes ship a lualine integration; use `"auto"` as a fallback if the theme
+> does not.
 
 ---
 
