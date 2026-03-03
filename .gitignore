@@ -1,0 +1,8 @@
+# vendor/ is populated by fetch.ps1 and transferred manually to offline machines.
+# Do NOT commit it — it contains gigabytes of binary and source data.
+vendor/
+
+# lazy-lock.json pins plugin commit hashes.
+# Keep it so offline machines use the exact same plugin versions that were
+# fetched. Un-comment the line below only if you want to ignore it.
+# lazy-lock.json
