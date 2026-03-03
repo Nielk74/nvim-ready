@@ -2,7 +2,9 @@ local T = require("core.theme")
 
 return {
     -- Colorscheme — configured in lua/core/theme.lua
-    {
+    -- lazy_name is needed when the GitHub repo name differs from the vendor/ dir name
+    -- (e.g. catppuccin/nvim -> vendor/plugins/catppuccin, rose-pine/neovim -> vendor/plugins/rose-pine)
+    vim.tbl_extend("force", {
         T.plugin,
         lazy     = false,
         priority = 1000,
@@ -10,7 +12,7 @@ return {
             require(T.module).setup(T.opts)
             vim.cmd.colorscheme(T.name)
         end,
-    },
+    }, T.lazy_name and { name = T.lazy_name } or {}),
 
     -- Statusline
     {

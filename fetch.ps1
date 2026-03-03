@@ -103,8 +103,14 @@ $plugins = @(
     @{ url = "https://github.com/saadparwaiz1/cmp_luasnip.git";                  name = "cmp_luasnip"                      },
     # formatting
     @{ url = "https://github.com/stevearc/conform.nvim.git";                     name = "conform.nvim"                     },
-    # UI
+    # UI - colorschemes (all vendored so theme can be changed offline)
     @{ url = "https://github.com/folke/tokyonight.nvim.git";                     name = "tokyonight.nvim"                  },
+    @{ url = "https://github.com/catppuccin/nvim.git";                            name = "catppuccin"                       },
+    @{ url = "https://github.com/rebelot/kanagawa.nvim.git";                     name = "kanagawa.nvim"                    },
+    @{ url = "https://github.com/rose-pine/neovim.git";                          name = "rose-pine"                        },
+    @{ url = "https://github.com/EdenEast/nightfox.nvim.git";                    name = "nightfox.nvim"                    },
+    @{ url = "https://github.com/ellisonleao/gruvbox.nvim.git";                  name = "gruvbox.nvim"                     },
+    @{ url = "https://github.com/navarasu/onedark.nvim.git";                     name = "onedark.nvim"                     },
     @{ url = "https://github.com/nvim-lualine/lualine.nvim.git";                 name = "lualine.nvim"                     },
     @{ url = "https://github.com/nvim-neo-tree/neo-tree.nvim.git";               name = "neo-tree.nvim";   branch = "v3.x" },
     @{ url = "https://github.com/MunifTanjim/nui.nvim.git";                      name = "nui.nvim"                         },
@@ -235,11 +241,12 @@ if ($missing.Count -eq 0) {
     # The new nvim-treesitter (0.10+) compiles grammar sources by calling
     # 'tree-sitter build', not gcc/clang directly. We vendor the CLI so fetch.ps1
     # does not require it to be pre-installed.
-    $tsCliDir = Join-Path $root "vendor\tools\tree-sitter"
+    # tree-sitter CLI is a build-time tool only -- keep it in TEMP, not vendor/.
+    $tsCliDir = Join-Path $env:TEMP "tree-sitter-cli"
     New-Item -ItemType Directory -Force -Path $tsCliDir | Out-Null
     $tsCliExe = Join-Path $tsCliDir "tree-sitter.exe"
     if (-not (Test-Path $tsCliExe)) {
-        Write-Host "    Downloading tree-sitter CLI..."
+        Write-Host "    Downloading tree-sitter CLI (build-time only, not vendored)..."
         $tsGzUrl  = Get-GithubRelease "tree-sitter/tree-sitter" "tree-sitter-windows-x64.gz"
         $tsGzPath = Join-Path $env:TEMP "tree-sitter-windows-x64.gz"
         Invoke-WebRequest -Uri $tsGzUrl -OutFile $tsGzPath
@@ -252,7 +259,7 @@ if ($missing.Count -eq 0) {
         Remove-Item $tsGzPath -Force
         Write-Ok "tree-sitter CLI -> $tsCliExe"
     } else {
-        Write-Skip "tree-sitter CLI already present"
+        Write-Skip "tree-sitter CLI already in TEMP"
     }
 
     # -- Activate MSVC build environment -----------------------------------------

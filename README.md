@@ -334,36 +334,47 @@ referenced directly by conform.nvim — no global npm install needed.
 ### Changing the theme
 
 All theme settings live in one file: **`lua/core/theme.lua`**.
-Open it, change what you need, save, and restart Neovim.
+Open it, replace the `return { ... }` block with the recipe for your chosen
+theme (all recipes are in the comments at the top of that file), save, and
+restart Neovim. No internet access required — all themes below are
+pre-vendored by `fetch.ps1`.
 
-#### Switch tokyonight style
+#### Available vendored themes
+
+| Theme | Styles / variants | lualine value |
+|-------|-------------------|---------------|
+| **tokyonight** (default) | `night` `storm` `moon` `day` | `"tokyonight"` |
+| **catppuccin** | `latte` `frappe` `macchiato` `mocha` | `"catppuccin"` |
+| **kanagawa** | `wave` `dragon` `lotus` | `"kanagawa"` |
+| **rose-pine** | `main` `moon` `dawn` | `"rose-pine"` |
+| **nightfox** | `nightfox` `dayfox` `dawnfox` `duskfox` `nordfox` `carbonfox` `terafox` | same as `name` |
+| **gruvbox** | contrast: ` ` `soft` `hard` | `"gruvbox"` |
+| **onedark** | `dark` `darker` `cool` `deep` `warm` `warmer` `light` | `"onedark"` |
+
+#### Example: switch to catppuccin mocha
 
 ```lua
 -- lua/core/theme.lua
-opts = {
-    style = "moon",   -- "night" | "storm" | "moon" | "day"
-    ...
-},
+return {
+    plugin    = "catppuccin/nvim",
+    lazy_name = "catppuccin",        -- needed because the repo is named "nvim"
+    name      = "catppuccin-mocha",
+    module    = "catppuccin",
+    opts      = { flavour = "mocha" },
+    lualine   = "catppuccin",
+}
 ```
 
-That is the only line you need to touch for a tokyonight variant.
+> `lazy_name` is only required for catppuccin and rose-pine, whose GitHub
+> repo names (`nvim`, `neovim`) differ from their plugin directory names.
+> All other themes do not need it.
 
-#### Switch to a different colorscheme plugin
+#### Adding a theme that is not vendored
 
-1. Add the plugin to `fetch.ps1` (or manually clone it into `vendor/plugins/<repo-name>`).
-2. Edit the four fields in `lua/core/theme.lua`:
-
-```lua
-plugin = "catppuccin/nvim",     -- lazy spec: "owner/repo"
-name   = "catppuccin-mocha",    -- :colorscheme name
-module = "catppuccin",          -- require(<module>).setup(opts)
-opts   = { flavour = "mocha" }, -- plugin-specific setup options
-lualine = "catppuccin",         -- lualine theme (or "auto")
-```
-
-> `lualine` must stay in sync with the active colorscheme. Most popular
-> themes ship a lualine integration; use `"auto"` as a fallback if the theme
-> does not.
+1. Add an entry to the `$plugins` array in `fetch.ps1`.
+2. Run `fetch.ps1` on an internet machine and re-transfer `vendor/` (or just
+   the new plugin directory) to the offline machine.
+3. Fill in `lua/core/theme.lua` and restart Neovim.
 
 ---
 
