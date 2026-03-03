@@ -105,6 +105,21 @@ $plugins = @(
     @{ url = "https://github.com/stevearc/conform.nvim.git";                     name = "conform.nvim"                     },
     # navigation
     @{ url = "https://github.com/ThePrimeagen/harpoon.git";                      name = "harpoon";          branch = "harpoon2" },
+    # diagnostics / trouble
+    @{ url = "https://github.com/folke/trouble.nvim.git";                        name = "trouble.nvim"                         },
+    # git
+    @{ url = "https://github.com/sindrets/diffview.nvim.git";                    name = "diffview.nvim"                        },
+    @{ url = "https://github.com/kdheepak/lazygit.nvim.git";                     name = "lazygit.nvim"                         },
+    # dap
+    @{ url = "https://github.com/mfussenegger/nvim-dap.git";                     name = "nvim-dap"                             },
+    @{ url = "https://github.com/rcarriga/nvim-dap-ui.git";                      name = "nvim-dap-ui"                          },
+    @{ url = "https://github.com/nvim-neotest/nvim-nio.git";                     name = "nvim-nio"                             },
+    # editor utilities
+    @{ url = "https://github.com/folke/todo-comments.nvim.git";                  name = "todo-comments.nvim"                   },
+    @{ url = "https://github.com/RRethy/vim-illuminate.git";                     name = "vim-illuminate"                       },
+    @{ url = "https://github.com/folke/persistence.nvim.git";                    name = "persistence.nvim"                     },
+    # UI
+    @{ url = "https://github.com/folke/noice.nvim.git";                          name = "noice.nvim"                           },
     # UI - colorschemes (all vendored so theme can be changed offline)
     @{ url = "https://github.com/folke/tokyonight.nvim.git";                     name = "tokyonight.nvim"                  },
     @{ url = "https://github.com/catppuccin/nvim.git";                            name = "catppuccin"                       },
@@ -378,7 +393,38 @@ if (-not (Test-Path $stulaExe)) {
 }
 
 # ---------------------------------------------------------------------------
-# 7. Package vendor.zip (GitHub release asset)
+# 7. lazygit binary (used by lazygit.nvim)
+# ---------------------------------------------------------------------------
+Write-Step "lazygit"
+
+$lazygitDir = Join-Path $root "vendor\lazygit"
+$lazygitExe = Join-Path $lazygitDir "lazygit.exe"
+if (-not (Test-Path $lazygitExe)) {
+    $url = Get-GithubRelease "jesseduffield/lazygit" "lazygit_*_Windows_x86_64.zip"
+    $zip = Join-Path $env:TEMP "lazygit.zip"
+    Write-Host "    Downloading lazygit..."
+    Invoke-WebRequest -Uri $url -OutFile $zip
+    New-Item -ItemType Directory -Force -Path $lazygitDir | Out-Null
+    Expand-Archive -Path $zip -DestinationPath $lazygitDir -Force
+    Remove-Item $zip -Force
+    Write-Ok "lazygit extracted to $lazygitDir"
+} else {
+    Write-Skip "lazygit already present"
+}
+
+# Also download debugpy wheel for Python DAP support
+Write-Step "debugpy wheel"
+
+$existingDebugpy = @(Get-ChildItem $wheelsDir -Filter "debugpy*.whl" -ErrorAction SilentlyContinue)
+if ($existingDebugpy.Count -gt 0) {
+    Write-Skip "debugpy wheel already downloaded"
+} else {
+    pip download debugpy --dest $wheelsDir --quiet
+    Write-Ok "debugpy saved to $wheelsDir"
+}
+
+# ---------------------------------------------------------------------------
+# 8. Package vendor.zip (GitHub release asset)
 # ---------------------------------------------------------------------------
 Write-Step "Package vendor.zip"
 

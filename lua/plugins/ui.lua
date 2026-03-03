@@ -142,12 +142,14 @@ return {
                 { "<leader>g",  group = "git" },
                 { "<leader>h",  group = "hunk (git)" },
                 { "<leader>l",  group = "lsp" },
-                { "<leader>d",  group = "diagnostics" },
+                { "<leader>d",  group = "diagnostics / dap" },
                 { "<leader>b",  group = "buffer" },
                 { "<leader>s",  group = "split" },
                 { "<leader>t",  group = "treesitter" },
                 { "<leader>c",  group = "quickfix" },
                 { "<leader>r",  group = "refactor" },
+                { "<leader>x",  group = "trouble" },
+                { "<leader>p",  group = "session" },
             })
         end,
     },
@@ -155,17 +157,41 @@ return {
     -- Better notifications and UI hooks
     {
         "rcarriga/nvim-notify",
-        lazy = false,
+        lazy     = false,
         priority = 999,
         config = function()
-            local notify = require("notify")
-            notify.setup({
-                render   = "minimal",
-                stages   = "fade",
-                timeout  = 3000,
+            require("notify").setup({
+                render    = "minimal",
+                stages    = "fade",
+                timeout   = 3000,
                 max_width = 60,
             })
-            vim.notify = notify
+            vim.notify = require("notify")
+        end,
+    },
+
+    -- Enhanced cmdline, messages, and LSP doc UI
+    {
+        "folke/noice.nvim",
+        lazy     = false,
+        priority = 900,
+        dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" },
+        config = function()
+            require("noice").setup({
+                lsp = {
+                    override = {
+                        ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+                        ["vim.lsp.util.stylize_markdown"]                 = true,
+                        ["cmp.entry.get_documentation"]                   = true,
+                    },
+                },
+                presets = {
+                    bottom_search         = true,   -- search bar stays at the bottom
+                    command_palette       = true,   -- cmdline centered, palette-style
+                    long_message_to_split = true,   -- long messages go to a split
+                    lsp_doc_border        = true,   -- border on LSP hover/signature docs
+                },
+            })
         end,
     },
 }
