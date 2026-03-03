@@ -117,7 +117,8 @@ if ($null -eq $pip) {
 $pathAdditions = @(
     (Join-Path $root "vendor\formatters\stylua"),
     (Join-Path $root "vendor\lsp\clangd\bin"),
-    (Join-Path $root "vendor\lazygit")
+    (Join-Path $root "vendor\lazygit"),
+    (Join-Path $root "vendor\ripgrep")
 )
 
 $userPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")

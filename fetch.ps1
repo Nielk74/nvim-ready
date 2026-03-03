@@ -393,7 +393,33 @@ if (-not (Test-Path $stulaExe)) {
 }
 
 # ---------------------------------------------------------------------------
-# 7. lazygit binary (used by lazygit.nvim)
+# 7. ripgrep binary (required by Telescope find_files and live_grep)
+# ---------------------------------------------------------------------------
+Write-Step "ripgrep"
+
+$rgDir = Join-Path $root "vendor\ripgrep"
+$rgExe = Join-Path $rgDir "rg.exe"
+if (-not (Test-Path $rgExe)) {
+    $url = Get-GithubRelease "BurntSushi/ripgrep" "ripgrep-*-x86_64-pc-windows-msvc.zip"
+    $zip = Join-Path $env:TEMP "ripgrep.zip"
+    Write-Host "    Downloading ripgrep..."
+    Invoke-WebRequest -Uri $url -OutFile $zip
+    $tmp = Join-Path $env:TEMP "rg_extract"
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    Expand-Archive -Path $zip -DestinationPath $tmp
+    # Zip has a single versioned subdirectory; move its contents up
+    $inner = Get-ChildItem $tmp | Select-Object -First 1
+    New-Item -ItemType Directory -Force -Path $rgDir | Out-Null
+    Get-ChildItem $inner.FullName | Copy-Item -Destination $rgDir -Recurse -Force
+    Remove-Item $tmp -Recurse -Force
+    Remove-Item $zip -Force
+    Write-Ok "ripgrep extracted to $rgDir"
+} else {
+    Write-Skip "ripgrep already present"
+}
+
+# ---------------------------------------------------------------------------
+# 8. lazygit binary (used by lazygit.nvim)
 # ---------------------------------------------------------------------------
 Write-Step "lazygit"
 
