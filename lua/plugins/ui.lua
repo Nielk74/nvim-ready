@@ -136,6 +136,7 @@ return {
                 { "<leader>r",  group = "refactor" },
                 { "<leader>x",  group = "trouble" },
                 { "<leader>p",  group = "session" },
+                { "<leader>S",  group = "solution tree" },
             })
         end,
     },

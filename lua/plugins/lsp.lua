@@ -1,4 +1,5 @@
 -- LSP configuration — fully offline, no mason.
+-- Uses Nvim 0.11 native API: vim.lsp.config() + vim.lsp.enable()
 -- Binaries are expected in vendor/lsp/ (populated by fetch.ps1).
 --
 -- Layout expected after fetch.ps1:
@@ -10,12 +11,10 @@
 local vendor_lsp = vim.fs.joinpath(vim.fn.stdpath("config"), "vendor", "lsp")
 
 local bin = {
-    clangd   = vim.fs.joinpath(vendor_lsp, "clangd",  "bin",            "clangd.exe"),
+    clangd    = vim.fs.joinpath(vendor_lsp, "clangd",  "bin",        "clangd.exe"),
     omnisharp = vim.fs.joinpath(vendor_lsp, "omnisharp", "OmniSharp.dll"),
-    pyright  = vim.fs.joinpath(vendor_lsp, "pyright", "node_modules",
-                               ".bin", "pyright-langserver.cmd"),
-    ts_ls    = vim.fs.joinpath(vendor_lsp, "ts_ls",   "node_modules",
-                               ".bin", "typescript-language-server.cmd"),
+    pyright   = vim.fs.joinpath(vendor_lsp, "pyright", "node_modules", ".bin", "pyright-langserver.cmd"),
+    ts_ls     = vim.fs.joinpath(vendor_lsp, "ts_ls",   "node_modules", ".bin", "typescript-language-server.cmd"),
 }
 
 -- Warn once per session if a binary is missing rather than silently failing.
@@ -59,10 +58,6 @@ return {
         event = { "BufReadPre", "BufNewFile" },
         dependencies = { "hrsh7th/cmp-nvim-lsp" },
         config = function()
-            -- Suppress lspconfig deprecation warning (will be removed in v3.0.0)
-            vim.deprecate = function() end
-            
-            local lspconfig    = require("lspconfig")
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
             vim.lsp.handlers["textDocument/hover"] =
@@ -79,11 +74,14 @@ return {
                 float            = { border = "rounded", source = "always" },
             })
 
-            -- C / C++ -------------------------------------------------------
+            -- ----------------------------------------------------------------
+            -- C / C++ — clangd
             -- clangd reads compile_commands.json from the project root.
-            -- Generate it with: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ...
+            -- Generate it via cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            -- or via tools like compiledb / bear.
             -- For MSVC headers, launch Neovim from a Developer PowerShell.
-            lspconfig.clangd.setup({
+            -- ----------------------------------------------------------------
+            vim.lsp.config("clangd", {
                 cmd = {
                     bin.clangd,
                     "--background-index",
@@ -94,12 +92,26 @@ return {
                     "--fallback-style=Microsoft",
                     "-j=4",
                 },
-                capabilities = (function()
-                    local caps = require("cmp_nvim_lsp").default_capabilities()
-                    caps.offsetEncoding = { "utf-16" }
-                    return caps
-                end)(),
+                filetypes    = { "c", "cpp", "objc", "objcpp" },
+                root_markers = {
+                    ".clangd",
+                    ".clang-tidy",
+                    ".clang-format",
+                    "compile_commands.json",
+                    "compile_flags.txt",
+                    ".git",
+                },
+                capabilities = vim.tbl_deep_extend("force", capabilities, {
+                    offsetEncoding = { "utf-16" },
+                    textDocument   = { completion = { editsNearCursor = true } },
+                }),
                 on_attach = on_attach,
+                -- Update offset encoding from the server's initialize response.
+                on_init = function(client, init_result)
+                    if init_result.offsetEncoding then
+                        client.offset_encoding = init_result.offsetEncoding
+                    end
+                end,
                 init_options = {
                     usePlaceholders    = true,
                     completeUnimported = true,
@@ -107,20 +119,68 @@ return {
                 },
             })
 
-            -- C# ------------------------------------------------------------
-            lspconfig.omnisharp.setup({
-                cmd          = { "dotnet", bin.omnisharp },
-                capabilities = capabilities,
-                on_attach    = on_attach,
-                enable_roslyn_analyzers      = true,
-                organize_imports_on_format   = true,
-                enable_import_completion     = true,
-                enable_editor_config_support = true,
+            -- ----------------------------------------------------------------
+            -- C# — OmniSharp-Roslyn
+            -- OmniSharp finds the .sln automatically via root_markers.
+            -- Settings go in the `settings` table (Nvim 0.11 sends them via
+            -- workspace/didChangeConfiguration on attach).
+            -- The cmd flags (-z, --hostPID, --languageserver) are required
+            -- by the lspconfig on_new_config for older compat; here we set
+            -- them explicitly since we bypass the lspconfig wrapper.
+            -- ----------------------------------------------------------------
+            vim.lsp.config("omnisharp", {
+                cmd = {
+                    "dotnet", bin.omnisharp,
+                    "-z",                                         -- https://github.com/OmniSharp/omnisharp-vscode/pull/4300
+                    "--hostPID", tostring(vim.fn.getpid()),
+                    "DotNet:enablePackageRestore=false",
+                    "--encoding", "utf-8",
+                    "--languageserver",
+                },
+                filetypes    = { "cs", "vb" },
+                -- Use a function so we can match *.sln glob patterns.
+                root_markers = { "*.sln", "*.slnx", "*.csproj", "omnisharp.json", ".git" },
+                capabilities = vim.tbl_deep_extend("force", capabilities, {
+                    -- OmniSharp doesn't support workspace folders properly.
+                    workspace = { workspaceFolders = false },
+                }),
+                on_attach = on_attach,
+                settings = {
+                    FormattingOptions = {
+                        EnableEditorConfigSupport = true,
+                        OrganizeImports           = true,
+                    },
+                    MsBuild = {
+                        -- Only load projects for files currently open.
+                        -- Dramatically reduces startup noise on large solutions.
+                        LoadProjectsOnDemand = true,
+                    },
+                    RoslynExtensionsOptions = {
+                        EnableAnalyzersSupport   = true,
+                        EnableImportCompletion   = true,
+                        -- Only run analyzers on open documents (less noise).
+                        AnalyzeOpenDocumentsOnly = true,
+                    },
+                    Sdk = {
+                        IncludePrereleases = true,
+                    },
+                },
             })
 
-            -- Python --------------------------------------------------------
-            lspconfig.pyright.setup({
+            -- ----------------------------------------------------------------
+            -- Python — Pyright
+            -- ----------------------------------------------------------------
+            vim.lsp.config("pyright", {
                 cmd          = { bin.pyright, "--stdio" },
+                filetypes    = { "python" },
+                root_markers = {
+                    "pyproject.toml",
+                    "setup.py",
+                    "setup.cfg",
+                    "requirements.txt",
+                    "pyrightconfig.json",
+                    ".git",
+                },
                 capabilities = capabilities,
                 on_attach    = on_attach,
                 settings = {
@@ -135,22 +195,27 @@ return {
                 },
             })
 
-            -- TypeScript / JavaScript ---------------------------------------
-            lspconfig.ts_ls.setup({
+            -- ----------------------------------------------------------------
+            -- TypeScript / JavaScript — ts_ls
+            -- ----------------------------------------------------------------
+            vim.lsp.config("ts_ls", {
                 cmd          = { bin.ts_ls, "--stdio" },
+                filetypes    = {
+                    "javascript", "javascriptreact", "javascript.jsx",
+                    "typescript", "typescriptreact", "typescript.tsx",
+                },
+                root_markers = { "package.json", "tsconfig.json", "jsconfig.json", ".git" },
                 capabilities = capabilities,
                 on_attach    = on_attach,
-                init_options = {
-                    hostInfo = "neovim",
-                },
+                init_options = { hostInfo = "neovim" },
                 settings = {
                     typescript = {
                         inlayHints = {
-                            includeInlayParameterNameHints            = "all",
-                            includeInlayFunctionParameterTypeHints    = true,
-                            includeInlayVariableTypeHints             = true,
-                            includeInlayPropertyDeclarationTypeHints  = true,
-                            includeInlayFunctionLikeReturnTypeHints   = true,
+                            includeInlayParameterNameHints           = "all",
+                            includeInlayFunctionParameterTypeHints   = true,
+                            includeInlayVariableTypeHints            = true,
+                            includeInlayPropertyDeclarationTypeHints = true,
+                            includeInlayFunctionLikeReturnTypeHints  = true,
                         },
                     },
                     javascript = {
@@ -160,6 +225,9 @@ return {
                     },
                 },
             })
+
+            -- Start all servers automatically on matching filetypes.
+            vim.lsp.enable({ "clangd", "omnisharp", "pyright", "ts_ls" })
         end,
     },
 }

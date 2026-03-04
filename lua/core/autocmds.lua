@@ -70,14 +70,16 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end,
 })
 
--- Open neo-tree when Neovim starts with a directory argument
+-- When Neovim starts with a directory argument:
+-- detect .sln files and ask the user whether to open a solution tree or
+-- a plain file tree (neo-tree). Falls back silently to neo-tree if no .sln.
 vim.api.nvim_create_autocmd("VimEnter", {
-    group = augroup("neo_tree_open_dir"),
+    group = augroup("open_dir"),
     callback = function()
         local arg = vim.fn.argv(0)
         if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
             vim.schedule(function()
-                vim.cmd("Neotree show " .. vim.fn.fnameescape(arg))
+                require("solution_tree").detect_and_prompt(arg)
             end)
         end
     end,

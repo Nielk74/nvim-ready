@@ -59,3 +59,7 @@ map("n", "[c", "<cmd>cprev<cr>",          { desc = "Previous quickfix" })
 -- Splits
 map("n", "<leader>sv", "<cmd>vsplit<cr>", { desc = "Vertical split" })
 map("n", "<leader>sh", "<cmd>split<cr>",  { desc = "Horizontal split" })
+
+-- Solution tree
+map("n", "<leader>S", function() require("solution_tree").toggle() end,
+    { desc = "Toggle solution tree" })

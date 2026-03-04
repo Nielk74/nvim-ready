@@ -10,3 +10,7 @@ vendor.zip
 # Keep it so offline machines use the exact same plugin versions that were
 # fetched. Un-comment the line below only if you want to ignore it.
 # lazy-lock.json
+
+# Test template build artifacts
+test/template/**/obj/
+test/template/**/bin/
