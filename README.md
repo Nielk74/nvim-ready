@@ -24,6 +24,13 @@ custom-nvim/
   lua/
     core/                   options, keymaps, autocmds, theme.lua, themepicker.lua
     plugins/                one file per feature group
+    solution_tree.lua       VS Solution Explorer-style sidebar
+  test/
+    run.ps1                 headless LSP integration test suite
+    lsp_check.lua           Lua harness for LSP attach/diagnostic checks
+    test_sln_parse.ps1      headless solution parsing logic tests
+    test_sln_module.ps1     headless solution_tree module API tests
+    template/               minimal VS2022 solution (C# + C++ projects)
   vendor/                   .gitignore'd — populated by fetch.ps1
     lazy.nvim/
     plugins/                all neovim plugins as shallow git clones
@@ -207,6 +214,24 @@ nvim
 | `<leader>E` | Reveal current file |
 | `<leader>be` | Buffer list float |
 
+### Solution tree (VS Solution Explorer)
+
+| Key | Action |
+|-----|--------|
+| `<leader>S` | Toggle solution tree sidebar |
+
+Inside the solution tree buffer:
+
+| Key | Action |
+|-----|--------|
+| `<CR>` / `o` | Open file / collapse project node |
+| `R` | Refresh tree |
+| `q` | Close sidebar |
+| `?` | Show help |
+
+On startup, if Neovim is opened with a directory argument, a picker appears to
+choose between loading a `.sln` file or opening neo-tree.
+
 ### Harpoon
 
 | Key | Action |
@@ -386,6 +411,11 @@ omnisharp-roslyn runs via `dotnet vendor/lsp/omnisharp/OmniSharp.dll`. It
 indexes the solution automatically when you open a `.cs` file. If there are
 multiple `.sln` files, it may prompt for selection.
 
+The **solution tree** sidebar (`<leader>S`) parses `.sln`, `.csproj`
+(SDK-style and old-style), and `.vcxproj` files to display a VS
+Solution Explorer-style project view. Open Neovim with a directory argument
+to be prompted for which solution to load.
+
 csharpier is not vendored. Install it once on the offline machine:
 
 ```powershell
@@ -461,10 +491,10 @@ No internet access required — all themes below are pre-vendored.
 
 | Theme | Styles / variants | lualine value |
 |-------|-------------------|---------------|
-| **tokyonight** (default) | `night` `storm` `moon` `day` | `"tokyonight"` |
+| **tokyonight** | `night` `storm` `moon` `day` | `"tokyonight"` |
 | **catppuccin** | `latte` `frappe` `macchiato` `mocha` | `"catppuccin"` |
 | **kanagawa** | `wave` `dragon` `lotus` | `"kanagawa"` |
-| **rose-pine** | `main` `moon` `dawn` | `"rose-pine"` |
+| **rose-pine** (default) | `main` `moon` `dawn` | `"rose-pine"` |
 | **nightfox** | `nightfox` `dayfox` `dawnfox` `duskfox` `nordfox` `carbonfox` `terafox` | same as `name` |
 | **gruvbox** | contrast: ` ` `soft` `hard` | `"gruvbox"` |
 | **onedark** | `dark` `darker` `cool` `deep` `warm` `warmer` `light` | `"onedark"` |
