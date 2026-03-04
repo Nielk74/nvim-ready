@@ -105,6 +105,9 @@ return {
         end,
     },
 
+    -- Enable . repeat for surround and other plugins
+    { "tpope/vim-repeat", event = "VeryLazy" },
+
     -- Better f/t motions and multi-line search
     {
         "folke/flash.nvim",

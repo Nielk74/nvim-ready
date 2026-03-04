@@ -170,6 +170,7 @@ nvim
 | Auto-pairs | nvim-autopairs |
 | Commenting | Comment.nvim |
 | Surround | nvim-surround |
+| Repeat | vim-repeat |
 | Navigation | flash.nvim |
 | Key hints | which-key.nvim |
 | Notifications | nvim-notify |
