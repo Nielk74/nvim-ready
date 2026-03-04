@@ -137,9 +137,39 @@ else { Fail "parser: c_sharp missing" }
 $prereqFailed = ($script:failCount -gt 0)
 
 # ===========================================================================
-# Phase 2 - Clean startup
+# Phase 2 - Vendor sync
 # ===========================================================================
-Write-Step "Phase 2: Clean startup"
+Write-Step "Phase 2: Vendor sync"
+
+$fetchContent = Get-Content (Join-Path $root "fetch.ps1") -Raw
+$fetchSlugs   = [regex]::Matches(
+    $fetchContent, 'https://github\.com/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)\.git'
+) | ForEach-Object { $_.Groups[1].Value.ToLower() }
+
+$luaSlugs = [System.Collections.Generic.HashSet[string]]::new(
+    [System.StringComparer]::OrdinalIgnoreCase)
+foreach ($f in (Get-ChildItem (Join-Path $root "lua\plugins") -Filter "*.lua")) {
+    $c = Get-Content $f.FullName -Raw
+    foreach ($m in [regex]::Matches($c, '"([A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*)"')) {
+        $slug = $m.Groups[1].Value
+        $owner = $slug.Split('/')[0]
+        $lspNs = @('textDocument','workspace','window','notebookDocument','callHierarchy','typeHierarchy','client','telemetry')
+        if ($owner -cin $lspNs) { continue }  # drop LSP/JSON-RPC method names
+        $null = $luaSlugs.Add($slug.ToLower())
+    }
+}
+
+$missingSlugs = @($luaSlugs | Sort-Object | Where-Object { $fetchSlugs -notcontains $_ })
+if ($missingSlugs.Count -eq 0) {
+    Pass "All $($luaSlugs.Count) lua plugin(s) are listed in fetch.ps1"
+} else {
+    foreach ($m in $missingSlugs) { Fail "Plugin '$m' in lua/plugins/ is missing from fetch.ps1" }
+}
+
+# ===========================================================================
+# Phase 3 - Clean startup
+# ===========================================================================
+Write-Step "Phase 3: Clean startup"
 
 # Write Lua to a temp file to avoid Windows command-line quoting issues.
 $startupLua = Join-Path $env:TEMP ("nvim_startup_" + $PID + ".lua")
@@ -186,11 +216,11 @@ if ($prereqFailed) {
 }
 
 # ===========================================================================
-# Phase 3-5 - LSP tests
+# Phase 4-6 - LSP tests
 # ===========================================================================
 if (-not $SkipLsp) {
 
-Write-Step "Phase 3: Preparing test solution"
+Write-Step "Phase 4: Preparing test solution"
 
 $tmpDir = Join-Path $env:TEMP ("nvim-lsp-test-" + (Get-Random))
 $null   = New-Item -ItemType Directory -Force -Path $tmpDir
@@ -218,7 +248,7 @@ $cdbJson = "[" + [Environment]::NewLine +
 Pass "compile_commands.json written"
 
 # ---------------------------------------------------------------------------
-Write-Step "Phase 4: C++ LSP (clangd)"
+Write-Step "Phase 5: C++ LSP (clangd)"
 
 $cppFile = Join-Path $cppDir "main.cpp"
 Info ("File: " + $cppFile)
@@ -234,7 +264,7 @@ elseif ($cppFx)               { Fail "clangd test failed" }
 else                          { Fail "clangd: no attachment reported" }
 
 # ---------------------------------------------------------------------------
-Write-Step "Phase 5: C# LSP (OmniSharp)"
+Write-Step "Phase 6: C# LSP (OmniSharp)"
 
 $csFile = Join-Path $csDir "Class1.cs"
 Info ("File:     " + $csFile)
