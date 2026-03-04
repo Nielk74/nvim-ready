@@ -48,6 +48,31 @@ foreach ($lang in "lua","vim","vimdoc","query","cpp","c","c_sharp","python","typ
     }
 }
 
+Write-Host "`n=== VENDORED PLUGINS ==="
+$pluginDir = "$c\vendor\plugins"
+$luaPluginDir = "$c\lua\plugins"
+$missingPlugins = @()
+
+Get-ChildItem "$luaPluginDir\*.lua" | ForEach-Object {
+    $content = Get-Content $_.FullName -Raw
+    $matches = [regex]::Matches($content, '"([a-zA-Z][a-zA-Z0-9_-]*)/([a-zA-Z0-9_.-]+)"')
+    foreach ($m in $matches) {
+        $owner = $m.Groups[1].Value
+        $pluginName = $m.Groups[2].Value
+        if ($owner -notin @("textDocument", "workspace", "window", "client")) {
+            if (-not (Test-Path "$pluginDir\$pluginName")) {
+                $missingPlugins += "$owner/$pluginName"
+            }
+        }
+    }
+}
+
+if ($missingPlugins.Count -eq 0) {
+    Write-Host "OK    All referenced plugins vendored"; $ok++
+} else {
+    Write-Host "MISS  Plugins not vendored: $($missingPlugins -join ', ')"; $miss++
+}
+
 Write-Host "`n=== WHEELS ==="
 $wd = "$c\vendor\wheels"
 Chk "pynvim wheel"  (Get-ChildItem $wd -Filter "pynvim*.whl"  -EA SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName)
