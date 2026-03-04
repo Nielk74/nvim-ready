@@ -91,6 +91,7 @@ $plugins = @(
     @{ url = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git"; name = "nvim-treesitter-textobjects"    },
     # lsp
     @{ url = "https://github.com/neovim/nvim-lspconfig.git";                     name = "nvim-lspconfig"                   },
+    @{ url = "https://github.com/p00f/clangd_extensions.nvim.git";               name = "clangd_extensions.nvim"           },
     # completion
     @{ url = "https://github.com/hrsh7th/nvim-cmp.git";                          name = "nvim-cmp"                         },
     @{ url = "https://github.com/hrsh7th/cmp-nvim-lsp.git";                      name = "cmp-nvim-lsp"                     },

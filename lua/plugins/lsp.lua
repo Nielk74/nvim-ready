@@ -56,7 +56,7 @@ return {
         "neovim/nvim-lspconfig",
         -- loaded once the first real buffer opens
         event = { "BufReadPre", "BufNewFile" },
-        dependencies = { "hrsh7th/cmp-nvim-lsp" },
+        dependencies = { "hrsh7th/cmp-nvim-lsp", "p00f/clangd_extensions.nvim" },
         config = function()
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
@@ -81,6 +81,16 @@ return {
             -- or via tools like compiledb / bear.
             -- For MSVC headers, launch Neovim from a Developer PowerShell.
             -- ----------------------------------------------------------------
+            -- clangd_extensions: inlay hints and C++ extras on top of clangd.
+            -- Setup must come before vim.lsp.enable() so the plugin can register
+            -- its on_attach hook before any clangd client starts.
+            require("clangd_extensions").setup({
+                inlay_hints = {
+                    inline          = true,
+                    only_current_line = false,
+                },
+            })
+
             vim.lsp.config("clangd", {
                 cmd = {
                     bin.clangd,
