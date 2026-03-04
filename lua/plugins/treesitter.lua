@@ -31,6 +31,19 @@ return {
         end,
     },
 
+    -- Sticky context: pins the current function/class/namespace at the top
+    -- when scrolled past it. Useful for large C++ and C# files.
+    {
+        "nvim-treesitter/nvim-treesitter-context",
+        event = { "BufReadPre", "BufNewFile" },
+        config = function()
+            require("treesitter-context").setup({
+                max_lines      = 3,
+                trim_scope     = "outer",
+            })
+        end,
+    },
+
     -- Text objects
     {
         "nvim-treesitter/nvim-treesitter-textobjects",

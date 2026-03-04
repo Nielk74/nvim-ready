@@ -178,6 +178,7 @@ nvim
 | Undo tree | undotree |
 | Session persistence | persistence.nvim |
 | Code outline | aerial.nvim |
+| Sticky context | nvim-treesitter-context |
 
 ---
 
