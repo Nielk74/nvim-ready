@@ -25,9 +25,9 @@ return {
     {
         "numToStr/Comment.nvim",
         event = { "BufReadPre", "BufNewFile" },
+        dependencies = { "JoosepAlviste/nvim-ts-context-commentstring" },
         config = function()
             require("Comment").setup({
-                -- Context-aware commenting for embedded languages (JSX, HTML in TS)
                 pre_hook = function(ctx)
                     local ok, ts_context = pcall(require, "ts_context_commentstring.integrations.comment_nvim")
                     if ok then

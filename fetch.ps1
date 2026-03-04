@@ -139,6 +139,7 @@ $plugins = @(
     # editor
     @{ url = "https://github.com/windwp/nvim-autopairs.git";                     name = "nvim-autopairs"                   },
     @{ url = "https://github.com/numToStr/Comment.nvim.git";                     name = "Comment.nvim"                     },
+    @{ url = "https://github.com/JoosepAlviste/nvim-ts-context-commentstring.git"; name = "nvim-ts-context-commentstring"  },
     @{ url = "https://github.com/kylechui/nvim-surround.git";                    name = "nvim-surround"                    },
     @{ url = "https://github.com/folke/flash.nvim.git";                          name = "flash.nvim"                       },
     @{ url = "https://github.com/NvChad/nvim-colorizer.lua.git";                 name = "nvim-colorizer.lua"               },
