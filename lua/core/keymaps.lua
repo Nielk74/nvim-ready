@@ -48,7 +48,7 @@ map("v", "p", '"_dP', { desc = "Paste without yanking" })
 map("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
 map("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
 map("n", "<leader>de", vim.diagnostic.open_float, { desc = "Diagnostic float" })
-map("n", "<leader>dq", vim.diagnostic.setloclist, { desc = "Diagnostic list" })
+map("n", "<leader>dq", vim.diagnostic.setqflist, { desc = "Diagnostic quickfix list" })
 
 -- Quickfix list
 map("n", "<leader>co", "<cmd>copen<cr>",  { desc = "Open quickfix" })
