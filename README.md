@@ -270,11 +270,11 @@ Inside Telescope: `Ctrl+j/k` to move, `Ctrl+q` to quickfix, `Esc` to close.
 
 | Key | Action |
 |-----|--------|
-| `gd` | Go to definition |
+| `gd` | Go to definition (Telescope) |
 | `gD` | Go to declaration |
-| `gr` | References |
-| `gi` | Implementation |
-| `gt` | Type definition |
+| `gr` | References (Telescope) |
+| `gi` | Implementation (Telescope) |
+| `gt` | Type definition (Telescope) |
 | `K` | Hover docs |
 | `Ctrl+s` | Signature help (normal + insert) |
 | `<leader>rn` | Rename |
