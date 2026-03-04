@@ -50,17 +50,18 @@ foreach ($lang in "lua","vim","vimdoc","query","cpp","c","c_sharp","python","typ
 
 Write-Host "`n=== VENDORED PLUGINS ==="
 $pluginDir = "$c\vendor\plugins"
-$luaPluginDir = "$c\lua\plugins"
 $missingPlugins = @()
+$excludeOwners = @("textDocument", "workspace", "window", "client", "Open", "Close", "Toggle", "Show", "Hide", "Enable", "Disable", "Get", "Set", "Add", "Remove", "Create", "Delete", "Update", "Insert", "Select", "Format", "Parse", "Build", "Run", "Stop", "Start", "Load", "Save", "Read", "Write")
 
-Get-ChildItem "$luaPluginDir\*.lua" | ForEach-Object {
+Get-ChildItem "$c\lua" -Recurse -Filter "*.lua" | ForEach-Object {
     $content = Get-Content $_.FullName -Raw
     $matches = [regex]::Matches($content, '"([a-zA-Z][a-zA-Z0-9_-]*)/([a-zA-Z0-9_.-]+)"')
     foreach ($m in $matches) {
         $owner = $m.Groups[1].Value
         $pluginName = $m.Groups[2].Value
-        if ($owner -notin @("textDocument", "workspace", "window", "client")) {
-            if (-not (Test-Path "$pluginDir\$pluginName")) {
+        if ($owner -notin $excludeOwners) {
+            $found = (Test-Path "$pluginDir\$pluginName") -or (Test-Path "$pluginDir\$owner")
+            if (-not $found) {
                 $missingPlugins += "$owner/$pluginName"
             }
         }
