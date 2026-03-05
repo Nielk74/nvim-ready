@@ -16,6 +16,7 @@
       vendor/parsers/           -- pre-compiled tree-sitter parser DLLs
       vendor/wheels/            -- pynvim + dependencies as pip wheels
       vendor/formatters/        -- stylua binary
+      vendor/dap/codelldb/      -- codelldb debugger (C/C++)
 
     Formatters installed globally via pip / npm (black, prettier) are NOT
     vendored because they depend on the target Python / Node environments.
@@ -464,6 +465,38 @@ if ($existingDebugpy.Count -gt 0) {
 } else {
     pip download debugpy --dest $wheelsDir --quiet
     Write-Ok "debugpy saved to $wheelsDir"
+}
+
+# ---------------------------------------------------------------------------
+# 9. codelldb (C/C++ debugger for nvim-dap)
+# ---------------------------------------------------------------------------
+Write-Step "codelldb"
+
+$dapDir = Join-Path $root "vendor\dap"
+$codelldbDir = Join-Path $dapDir "codelldb"
+$codelldbExe = Join-Path $codelldbDir "adapter\codelldb.exe"
+if (-not (Test-Path $codelldbExe)) {
+    $url = Get-GithubRelease "vadimcn/codelldb" "codelldb-win32-x64.vsix"
+    $vsix = Join-Path $env:TEMP "codelldb.vsix"
+    $zip = Join-Path $env:TEMP "codelldb.zip"
+    Write-Host "    Downloading codelldb..."
+    Invoke-WebRequest -Uri $url -OutFile $vsix
+    # VSIX is a ZIP file; rename and extract
+    Move-Item $vsix $zip -Force
+    $tmp = Join-Path $env:TEMP "codelldb_extract"
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    Expand-Archive -Path $zip -DestinationPath $tmp
+    # Move extension/ folder contents to vendor/dap/codelldb/
+    New-Item -ItemType Directory -Force -Path $dapDir | Out-Null
+    $extensionSrc = Join-Path $tmp "extension"
+    if (Test-Path $extensionSrc) {
+        Move-Item $extensionSrc $codelldbDir -Force
+    }
+    Remove-Item $tmp -Recurse -Force
+    Remove-Item $zip -Force
+    Write-Ok "codelldb extracted to $codelldbDir"
+} else {
+    Write-Skip "codelldb already present"
 }
 
 # ---------------------------------------------------------------------------

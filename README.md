@@ -45,7 +45,8 @@ custom-nvim/
     ripgrep/                rg.exe (required by Telescope)
     lazygit/                lazygit.exe (used by lazygit.nvim)
     wheels/                 pynvim + black + debugpy as pip wheels
-    dap/                    optional — place codelldb here for C/C++ debugging
+    dap/
+      codelldb/             codelldb.exe (C/C++ debugger for nvim-dap)
 ```
 
 ---
@@ -97,6 +98,7 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned   # once, if not already set
 - Download the latest stylua binary into `vendor/formatters/`
 - Download ripgrep into `vendor/ripgrep/`
 - Download lazygit into `vendor/lazygit/`
+- Download codelldb into `vendor/dap/codelldb/` (C/C++ debugger)
 
 Running fetch.ps1 a second time is safe — already-present items are skipped.
 
@@ -406,13 +408,8 @@ added to PATH by install.ps1.
 
 #### C/C++ debugging (codelldb)
 
-nvim-dap is configured to use codelldb for C/C++. Download it separately:
-
-1. Get the latest release from [github.com/vadimcn/codelldb/releases](https://github.com/vadimcn/codelldb/releases) — pick `codelldb-x86_64-windows.vsix`
-2. Rename `.vsix` to `.zip` and extract it
-3. Place the extracted folder at `vendor/dap/codelldb/`
-
-The adapter will be picked up automatically on next Neovim start.
+codelldb is vendored by `fetch.ps1` at `vendor/dap/codelldb/`. No manual setup
+required — press `<F5>` in any C/C++ file to start debugging.
 
 ### C#
 

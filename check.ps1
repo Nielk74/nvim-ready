@@ -27,6 +27,7 @@ Chk "vendor/lsp/pyright"   "$c\vendor\lsp\pyright"
 Chk "vendor/lsp/omnisharp" "$c\vendor\lsp\omnisharp"
 Chk "vendor/lsp/ts_ls"     "$c\vendor\lsp\ts_ls"
 Chk "vendor/parsers"       "$c\vendor\parsers\parser"
+Chk "vendor/dap/codelldb"  "$c\vendor\dap\codelldb\adapter"
 
 Write-Host "`n=== BINARIES ==="
 Chk "rg.exe"                         "$c\vendor\ripgrep\rg.exe"
@@ -37,6 +38,7 @@ Chk "pyright-langserver.cmd"         "$c\vendor\lsp\pyright\node_modules\.bin\py
 Chk "typescript-language-server.cmd" "$c\vendor\lsp\ts_ls\node_modules\.bin\typescript-language-server.cmd"
 Chk "OmniSharp.dll"                  "$c\vendor\lsp\omnisharp\OmniSharp.dll"
 Chk "prettier.cmd"                   "$c\vendor\lsp\ts_ls\node_modules\.bin\prettier.cmd"
+Chk "codelldb.exe"                   "$c\vendor\dap\codelldb\adapter\codelldb.exe"
 
 Write-Host "`n=== TREE-SITTER PARSERS ==="
 $pd = "$c\vendor\parsers\parser"

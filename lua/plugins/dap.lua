@@ -1,3 +1,18 @@
+-- Debug Adapter Protocol (DAP) configuration for C/C++ and Python.
+--
+-- SETUP REQUIREMENTS:
+-- ====================
+-- C/C++ debugging (codelldb):
+--   Automatically vendored at vendor/dap/codelldb/ by fetch.ps1
+--   No manual setup required.
+--
+-- Python debugging (debugpy):
+--   pip install debugpy --no-index --find-links vendor\wheels\
+--   (debugpy wheel is vendored in vendor/wheels/)
+--
+-- STATUS CHECK:
+--   Run :DapStatus to see which adapters are available.
+
 return {
     -- Debug Adapter Protocol client
     {
@@ -16,43 +31,58 @@ return {
         config = function()
             local dap = require("dap")
 
-            -- ── Python ─────────────────────────────────────────────────────
-            -- Requires: pip install debugpy
-            dap.adapters.python = {
-                type    = "executable",
-                command = "python",
-                args    = { "-m", "debugpy.adapter" },
-            }
-            dap.configurations.python = {
-                {
-                    type    = "python",
-                    request = "launch",
-                    name    = "Launch file",
-                    program = "${file}",
-                    pythonPath = function()
-                        local venv = vim.fn.getcwd() .. "/.venv/Scripts/python.exe"
-                        return vim.fn.executable(venv) == 1 and venv or "python"
-                    end,
-                },
-                {
-                    type    = "python",
-                    request = "launch",
-                    name    = "Launch with args",
-                    program = "${file}",
-                    args    = function() return vim.split(vim.fn.input("Args: "), " ") end,
-                    pythonPath = function()
-                        local venv = vim.fn.getcwd() .. "/.venv/Scripts/python.exe"
-                        return vim.fn.executable(venv) == 1 and venv or "python"
-                    end,
-                },
+            -- Track adapter availability for :DapStatus
+            local adapters_available = {
+                python = false,
+                codelldb = false,
             }
 
+            -- ── Python ─────────────────────────────────────────────────────
+            -- Check if debugpy is available
+            local debugpy_ok = vim.fn.system("python -c \"import debugpy\" 2>&1")
+            if vim.v.shell_error == 0 then
+                adapters_available.python = true
+                dap.adapters.python = {
+                    type    = "executable",
+                    command = "python",
+                    args    = { "-m", "debugpy.adapter" },
+                }
+                dap.configurations.python = {
+                    {
+                        type    = "python",
+                        request = "launch",
+                        name    = "Launch file",
+                        program = "${file}",
+                        pythonPath = function()
+                            local venv = vim.fn.getcwd() .. "/.venv/Scripts/python.exe"
+                            return vim.fn.executable(venv) == 1 and venv or "python"
+                        end,
+                    },
+                    {
+                        type    = "python",
+                        request = "launch",
+                        name    = "Launch with args",
+                        program = "${file}",
+                        args    = function() return vim.split(vim.fn.input("Args: "), " ") end,
+                        pythonPath = function()
+                            local venv = vim.fn.getcwd() .. "/.venv/Scripts/python.exe"
+                            return vim.fn.executable(venv) == 1 and venv or "python"
+                        end,
+                    },
+                }
+            else
+                vim.notify(
+                    "[DAP] debugpy not found — Python debugging disabled.\n"
+                        .. "Install with: pip install debugpy --no-index --find-links vendor\\wheels\\",
+                    vim.log.levels.WARN
+                )
+            end
+
             -- ── C / C++ via codelldb ───────────────────────────────────────
-            -- Requires: download codelldb from github.com/vadimcn/codelldb/releases
-            -- and place at vendor/dap/codelldb/extension/adapter/codelldb.exe
             local codelldb = vim.fn.stdpath("config")
-                .. "/vendor/dap/codelldb/extension/adapter/codelldb.exe"
+                .. "/vendor/dap/codelldb/adapter/codelldb.exe"
             if vim.fn.executable(codelldb) == 1 then
+                adapters_available.codelldb = true
                 dap.adapters.codelldb = {
                     type       = "server",
                     port       = "${port}",
@@ -72,7 +102,22 @@ return {
                         },
                     }
                 end
+            else
+                vim.notify(
+                    "[DAP] codelldb not found at " .. codelldb .. " — C/C++ debugging disabled.\n"
+                        .. "Download from: https://github.com/vadimcn/codelldb/releases\n"
+                        .. "Extract to: vendor/dap/codelldb/",
+                    vim.log.levels.WARN
+                )
             end
+
+            -- ── :DapStatus command ─────────────────────────────────────────
+            vim.api.nvim_create_user_command("DapStatus", function()
+                local lines = { "DAP Adapter Status:", "" }
+                table.insert(lines, "  Python (debugpy):  " .. (adapters_available.python and "✓ available" or "✗ not found"))
+                table.insert(lines, "  C/C++ (codelldb):  " .. (adapters_available.codelldb and "✓ available" or "✗ not found"))
+                vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
+            end, { desc = "Show DAP adapter availability" })
         end,
     },
 
