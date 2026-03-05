@@ -37,8 +37,8 @@ local function find_slns(start)
     local seen = {}
     while dir ~= "" and not seen[dir] do
         seen[dir] = true
-        local slns = vim.fn.glob(dir .. "/*.sln", false, true)
-        if #slns > 0 then
+        local ok, slns = pcall(vim.fn.glob, dir .. "/*.sln", false, true)
+        if ok and #slns > 0 then
             return vim.tbl_map(norm, slns), dir
         end
         local parent = norm(vim.fn.fnamemodify(dir, ":h"))
@@ -54,9 +54,14 @@ end
 local function parse_sln(sln_path)
     local sln_dir = norm(vim.fn.fnamemodify(sln_path, ":h"))
     local projects = {}
+    local ok, lines = pcall(vim.fn.readfile, sln_path)
+    if not ok then
+        vim.notify("[SolutionTree] could not read " .. sln_path .. ": " .. lines, vim.log.levels.WARN)
+        return projects
+    end
     -- Solution folder GUID (skip these)
     local FOLDER_GUID = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
-    for _, line in ipairs(vim.fn.readfile(sln_path)) do
+    for _, line in ipairs(lines) do
         -- Project("{TYPE-GUID}") = "Name", "rel\path.ext", "{PROJ-GUID}"
         local tguid, name, rel =
             line:match('^%s*Project%("{([^}]+)}"%)[^=]*=[^"]*"([^"]+)"[^,]*,[^"]*"([^"]+)"')
@@ -85,11 +90,20 @@ end
 local function parse_csproj(proj_path)
     local proj_dir = norm(vim.fn.fnamemodify(proj_path, ":h"))
     if not vim.uv.fs_stat(proj_path) then return {} end
-    local content = table.concat(vim.fn.readfile(proj_path), "\n")
+    local ok, lines = pcall(vim.fn.readfile, proj_path)
+    if not ok then
+        vim.notify("[SolutionTree] could not read " .. proj_path .. ": " .. lines, vim.log.levels.WARN)
+        return {}
+    end
+    local content = table.concat(lines, "\n")
 
     -- SDK-style project: glob disk (all .cs under project dir, excluding obj/bin)
     if content:match('<Project%s[^>]*Sdk=') or content:match('<Sdk%s+Name=') then
-        local all = vim.fn.glob(proj_dir .. "/**/*.cs", false, true)
+        local ok_glob, all = pcall(vim.fn.glob, proj_dir .. "/**/*.cs", false, true)
+        if not ok_glob then
+            vim.notify("[SolutionTree] could not glob " .. proj_dir .. ": " .. all, vim.log.levels.WARN)
+            return {}
+        end
         local files = vim.tbl_filter(function(f)
             return not f:match("[/\\]obj[/\\]") and not f:match("[/\\]bin[/\\]")
         end, all)
@@ -110,7 +124,12 @@ end
 local function parse_vcxproj(proj_path)
     local proj_dir = norm(vim.fn.fnamemodify(proj_path, ":h"))
     if not vim.uv.fs_stat(proj_path) then return {} end
-    local content = table.concat(vim.fn.readfile(proj_path), "\n")
+    local ok, lines = pcall(vim.fn.readfile, proj_path)
+    if not ok then
+        vim.notify("[SolutionTree] could not read " .. proj_path .. ": " .. lines, vim.log.levels.WARN)
+        return {}
+    end
+    local content = table.concat(lines, "\n")
     local files = {}
     for _, tag in ipairs({ "ClCompile", "ClInclude", "None", "ResourceCompile", "Image" }) do
         for inc in content:gmatch("<" .. tag .. '%s+Include="([^"]+)"') do
@@ -162,9 +181,18 @@ local function build_nodes()
         })
 
         if not collapsed then
-            local files = proj.kind == "csharp" and parse_csproj(proj.path)
-                or proj.kind == "cpp" and parse_vcxproj(proj.path)
-                or {}
+            local ok_parse, files
+            if proj.kind == "csharp" then
+                ok_parse, files = pcall(parse_csproj, proj.path)
+            elseif proj.kind == "cpp" then
+                ok_parse, files = pcall(parse_vcxproj, proj.path)
+            else
+                files = {}
+            end
+            if not ok_parse then
+                vim.notify("[SolutionTree] error parsing " .. proj.path .. ": " .. files, vim.log.levels.WARN)
+                files = {}
+            end
 
             -- Group by first sub-directory to show structure
             local subdirs  = {}  -- ordered list of subdir names
@@ -284,7 +312,12 @@ end
 
 local function action_refresh()
     if not S.sln then return end
-    S.sln.projects = parse_sln(S.sln.path)
+    local ok, projects = pcall(parse_sln, S.sln.path)
+    if not ok then
+        vim.notify("[SolutionTree] could not refresh " .. S.sln.path .. ": " .. projects, vim.log.levels.WARN)
+        projects = {}
+    end
+    S.sln.projects = projects
     render()
     vim.notify("[Solution Tree] Refreshed", vim.log.levels.INFO)
 end
@@ -345,7 +378,12 @@ function M.open(sln_path)
     -- Close neo-tree if it's sitting there
     pcall(vim.cmd, "Neotree close")
 
-    S.sln       = { path = sln_path, projects = parse_sln(sln_path) }
+    local ok, projects = pcall(parse_sln, sln_path)
+    if not ok then
+        vim.notify("[SolutionTree] could not parse " .. sln_path .. ": " .. projects, vim.log.levels.ERROR)
+        projects = {}
+    end
+    S.sln       = { path = sln_path, projects = projects }
     S.collapsed = {}
     S.buf       = make_buf()
     S.win       = make_win(S.buf)
