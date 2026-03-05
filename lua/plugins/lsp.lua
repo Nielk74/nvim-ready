@@ -110,6 +110,7 @@ return {
                     "--completion-style=detailed",
                     "--function-arg-placeholders",
                     "--fallback-style=Microsoft",
+                    "--query-driver=**",
                     "-j=4",
                 },
                 filetypes    = { "c", "cpp", "objc", "objcpp" },

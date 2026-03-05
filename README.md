@@ -161,7 +161,8 @@ nvim
 | Snippets | LuaSnip + friendly-snippets |
 | Formatting | conform.nvim |
 | Diagnostics panel | trouble.nvim |
-| Debugger | nvim-dap + nvim-dap-ui + nvim-nio |
+| Debugger | nvim-dap + nvim-dap-ui + nvim-nio + nvim-dap-virtual-text |
+| Task runner | overseer.nvim |
 | Git decorations | gitsigns.nvim |
 | Git diff viewer | diffview.nvim |
 | Git TUI | lazygit.nvim |
@@ -344,6 +345,14 @@ Inside Telescope: `Ctrl+j/k` to move, `Ctrl+q` to quickfix, `Esc` to close.
 | `<leader>dr` | Open REPL |
 | `<leader>dl` | Run last |
 | `<leader>du` | Toggle DAP UI |
+
+### Build / Tasks (overseer)
+
+| Key | Action |
+|-----|--------|
+| `<leader>tt` | Toggle task panel |
+| `<leader>tr` | Run task |
+| `<leader>tl` | Load task bundle |
 
 ### TODO comments
 

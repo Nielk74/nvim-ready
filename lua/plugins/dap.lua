@@ -151,4 +151,24 @@ return {
             dap.listeners.before.event_exited["dapui_config"]     = function() dapui.close() end
         end,
     },
+
+    -- Inline virtual text showing variable values during DAP sessions
+    {
+        "theHamsta/nvim-dap-virtual-text",
+        dependencies = { "mfussenegger/nvim-dap", "nvim-treesitter/nvim-treesitter" },
+        config = function()
+            require("nvim-dap-virtual-text").setup({
+                enabled                     = true,
+                enabled_commands            = true,   -- :DapVirtualTextEnable/Disable/Toggle
+                highlight_changed_variables = true,   -- highlight changed vars differently
+                highlight_new_as_changed    = false,
+                show_stop_reason            = true,   -- show why execution stopped
+                commented                   = false,
+                only_first_definition       = true,   -- avoid repetition across scopes
+                all_references              = false,
+                virt_text_pos               = "eol",  -- at end of line, not inline
+                all_frames                  = false,  -- current frame only
+            })
+        end,
+    },
 }

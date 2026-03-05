@@ -200,4 +200,32 @@ return {
             })
         end,
     },
+
+    -- Task runner: run build commands (make, cmake, msbuild) and chain with DAP
+    {
+        "stevearc/overseer.nvim",
+        event = "VeryLazy",
+        keys = {
+            { "<leader>tt", "<cmd>OverseerToggle<cr>",     desc = "Overseer: toggle task panel" },
+            { "<leader>tr", "<cmd>OverseerRun<cr>",        desc = "Overseer: run task"          },
+            { "<leader>tl", "<cmd>OverseerLoadBundle<cr>", desc = "Overseer: load bundle"       },
+        },
+        config = function()
+            require("overseer").setup({
+                task_list = {
+                    direction  = "bottom",
+                    min_height = 10,
+                    max_height = 15,
+                    bindings = {
+                        ["<CR>"]  = "RunAction",
+                        ["<C-e>"] = "Edit",
+                        ["o"]     = "Open",
+                        ["q"]     = "Close",
+                    },
+                },
+                -- Built-in templates: make, cmake, cargo, npm, shell.
+                -- Also picks up tasks from .overseer.json in project root.
+            })
+        end,
+    },
 }

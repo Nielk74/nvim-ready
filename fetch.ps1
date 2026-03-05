@@ -116,7 +116,9 @@ $plugins = @(
     @{ url = "https://github.com/mfussenegger/nvim-dap.git";                     name = "nvim-dap"                             },
     @{ url = "https://github.com/rcarriga/nvim-dap-ui.git";                      name = "nvim-dap-ui"                          },
     @{ url = "https://github.com/nvim-neotest/nvim-nio.git";                     name = "nvim-nio"                             },
+    @{ url = "https://github.com/theHamsta/nvim-dap-virtual-text.git";           name = "nvim-dap-virtual-text"                },
     # editor utilities
+    @{ url = "https://github.com/stevearc/overseer.nvim.git";                    name = "overseer.nvim"                        },
     @{ url = "https://github.com/folke/todo-comments.nvim.git";                  name = "todo-comments.nvim"                   },
     @{ url = "https://github.com/RRethy/vim-illuminate.git";                     name = "vim-illuminate"                       },
     @{ url = "https://github.com/folke/persistence.nvim.git";                    name = "persistence.nvim"                     },
