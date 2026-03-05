@@ -146,7 +146,10 @@ $plugins = @(
     @{ url = "https://github.com/folke/flash.nvim.git";                          name = "flash.nvim"                       },
     @{ url = "https://github.com/NvChad/nvim-colorizer.lua.git";                 name = "nvim-colorizer.lua"               },
     @{ url = "https://github.com/mbbill/undotree.git";                           name = "undotree"                         },
-    @{ url = "https://github.com/j-hui/fidget.nvim.git";                         name = "fidget.nvim"                      }
+    @{ url = "https://github.com/j-hui/fidget.nvim.git";                         name = "fidget.nvim"                      },
+    # outline / code navigation
+    @{ url = "https://github.com/stevearc/aerial.nvim.git";                      name = "aerial.nvim"                      },
+    @{ url = "https://github.com/nvim-treesitter/nvim-treesitter-context.git";   name = "nvim-treesitter-context"          }
 )
 
 $pluginDir = Join-Path $root "vendor\plugins"

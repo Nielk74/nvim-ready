@@ -178,6 +178,8 @@ nvim
 | Color preview | nvim-colorizer.lua |
 | Undo tree | undotree |
 | Session persistence | persistence.nvim |
+| Code outline | aerial.nvim |
+| Sticky context | nvim-treesitter-context |
 
 ---
 
@@ -232,6 +234,12 @@ Inside the solution tree buffer:
 
 On startup, if Neovim is opened with a directory argument, a picker appears to
 choose between loading a `.sln` file or opening neo-tree.
+
+### Code outline (aerial)
+
+| Key | Action |
+|-----|--------|
+| `<leader>o` | Toggle code outline sidebar |
 
 ### Harpoon
 
