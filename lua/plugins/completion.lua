@@ -91,7 +91,11 @@ return {
                     { name = "nvim_lsp_signature_help", priority = 900  },
                     { name = "luasnip",                priority = 750  },
                     { name = "buffer",                 priority = 500,
-                      option = { get_bufnrs = vim.api.nvim_list_bufs } },
+                      option = {
+                        get_bufnrs = function()
+                          return vim.tbl_filter(vim.api.nvim_buf_is_loaded, vim.api.nvim_list_bufs())
+                        end,
+                      } },
                     { name = "path",                   priority = 250  },
                 }),
 
