@@ -34,9 +34,9 @@ return {
             "nvim-tree/nvim-web-devicons",
         },
         keys = {
-            { "<leader>e",  "<cmd>Neotree toggle<cr>",       desc = "Toggle file explorer" },
-            { "<leader>E",  "<cmd>Neotree reveal<cr>",       desc = "Reveal in explorer"   },
-            { "<leader>be", "<cmd>Neotree buffers reveal float<cr>", desc = "Buffer list"  },
+            { "<leader>e",  "<cmd>Neotree toggle<cr>",               desc = "Explorer: toggle" },
+            { "<leader>E",  "<cmd>Neotree reveal<cr>",               desc = "Explorer: reveal" },
+            { "<leader>be", "<cmd>Neotree buffers reveal float<cr>", desc = "Buffer: list"     },
         },
         config = function()
             require("neo-tree").setup({

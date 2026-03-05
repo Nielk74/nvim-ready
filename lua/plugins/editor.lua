@@ -113,10 +113,10 @@ return {
         "folke/flash.nvim",
         event = "VeryLazy",
         keys = {
-            { "s",     function() require("flash").jump()   end, desc = "Flash jump",   mode = { "n", "x", "o" } },
-            { "S",     function() require("flash").treesitter() end, desc = "Flash treesitter", mode = { "n", "x", "o" } },
-            { "r",     function() require("flash").remote() end, desc = "Flash remote", mode = "o" },
-            { "<C-s>", function() require("flash").toggle() end, desc = "Flash toggle", mode = "c" },
+            { "s",     function() require("flash").jump()        end, desc = "Flash: jump",       mode = { "n", "x", "o" } },
+            { "S",     function() require("flash").treesitter()  end, desc = "Flash: treesitter", mode = { "n", "x", "o" } },
+            { "r",     function() require("flash").remote()      end, desc = "Flash: remote",     mode = "o" },
+            { "<C-s>", function() require("flash").toggle()      end, desc = "Flash: toggle",     mode = "c" },
         },
         config = function()
             require("flash").setup()
@@ -140,7 +140,7 @@ return {
     {
         "mbbill/undotree",
         keys = {
-            { "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "Undo tree" },
+            { "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "Edit: undo tree" },
         },
     },
 
@@ -163,9 +163,9 @@ return {
         dependencies = { "nvim-lua/plenary.nvim" },
         event = { "BufReadPre", "BufNewFile" },
         keys = {
-            { "]t",         function() require("todo-comments").jump_next() end, desc = "Next TODO" },
-            { "[t",         function() require("todo-comments").jump_prev() end, desc = "Prev TODO" },
-            { "<leader>fT", "<cmd>TodoTelescope<cr>",                            desc = "Find TODOs" },
+            { "]t",         function() require("todo-comments").jump_next() end, desc = "Todo: next" },
+            { "[t",         function() require("todo-comments").jump_prev() end, desc = "Todo: prev" },
+            { "<leader>fT", "<cmd>TodoTelescope<cr>",                            desc = "Find: TODOs" },
         },
         config = function()
             require("todo-comments").setup()

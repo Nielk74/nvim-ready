@@ -406,6 +406,11 @@ function M.close()
     end
 end
 
+--- Returns the absolute path of the currently loaded .sln, or nil.
+function M.active_sln()
+    return S.sln and S.sln.path or nil
+end
+
 function M.toggle()
     if is_open() then
         M.close()
