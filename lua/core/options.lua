@@ -42,11 +42,6 @@ opt.fileencoding = "utf-8"
 opt.completeopt = { "menuone", "noselect" }
 opt.pumheight = 10
 
--- Folding (treesitter-aware when available)
-opt.foldmethod = "expr"
-opt.foldexpr = "nvim_treesitter#foldexpr()"
-opt.foldlevel = 99          -- start with all folds open
-
 -- Windows shell
 if vim.fn.has("win32") == 1 then
     -- Use PowerShell for shell commands

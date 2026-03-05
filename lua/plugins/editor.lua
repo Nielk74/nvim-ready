@@ -91,7 +91,7 @@ return {
                     timeout_ms   = 1000,
                     lsp_fallback = true,
                 },
-                notify_on_error = false,   -- silently skip missing formatters
+                notify_on_error = true,    -- warn when formatters are missing
             })
         end,
     },
